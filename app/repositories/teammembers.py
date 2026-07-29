@@ -42,3 +42,4 @@ class TeamMemberRepository(BaseRepository):
             await self.session.execute(update_data_stmt)
         except IntegrityError:
             raise MemberRoleUpdateException
+

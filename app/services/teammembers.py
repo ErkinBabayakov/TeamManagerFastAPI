@@ -38,13 +38,25 @@ class TeamMembersService(BaseService):
             raise TeamNotFoundException from ex
 
     async def update_member_role(self, team_id: int, user_id: int, update_data: TeamMemberPATCHRole):
-        # updated_member = TeamMemberPATCH(
-        #     team_id=team_id,
-        #     user_id=user_id,
-        #     role=update_data.role,
-        # )
         try:
-            await self.db.team_members.update_member_role(team_id=team_id, user_id=user_id, role=update_data.role)
-            await self.db.commit()
+            team_exists = await self.db.teams.check_team_exists(team_id=team_id)
+            user_exists = await self.db.users.check_user_exists(user_id=user_id)
+            if team_exists and user_exists:
+                await self.db.team_members.update_member_role(team_id=team_id, user_id=user_id, role=update_data.role)
+                await self.db.commit()
+            else:
+                raise TeamOrUserNotFoundException
         except MemberRoleUpdateException as ex:
+            raise TeamOrUserNotFoundException from ex
+
+    async def delete_member(self, team_id: int, user_id: int):
+        try:
+            team_exists = await self.db.teams.check_team_exists(team_id=team_id)
+            user_exists = await self.db.users.check_user_exists(user_id=user_id)
+            if team_exists and user_exists:
+                await self.db.team_members.delete(team_id=team_id, user_id=user_id)
+                await self.db.commit()
+            else:
+                raise TeamOrUserNotFoundException
+        except ObjectNotFoundException as ex:
             raise TeamOrUserNotFoundException from ex

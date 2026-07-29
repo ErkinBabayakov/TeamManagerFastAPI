@@ -18,14 +18,23 @@ class ObjectNotFoundException(TeamManagerException):
 class TeamNotFoundException(ObjectNotFoundException):
     detail = "Команда с указанным team_id не найдена"
 
+class TaskOrTeamNotFoundException(ObjectNotFoundException):
+    detail = "Команда с указанным team_id или задача с переданным task_id не найдена"
+
 class MemberRoleUpdateException(TeamManagerException):
     detail = "Ошибка с базой данных. Не удалось обновить роль"
+
+class TaskCreateException(TeamManagerException):
+    detail = "Ошибка с базой данных. Не удалось создать задачу"
 
 class TeamNotExistException(ObjectNotFoundException):
     detail = "Пока еще не создана ни одна команда"
 
 class TeamEmptyException(TeamManagerException):
     detail = "В команде еще нет ни одного пользователя"
+
+class TeamTaskEmptyException(TeamManagerException):
+    detail = "В команде еще нет ни одной задачи"
 
 class TeamOrUserNotFoundException(ObjectNotFoundException):
     detail = "Команда или пользователь не найдены"
@@ -112,7 +121,7 @@ class TeamNotFoundHTTPException(TeamManagerHTTPException):
 
 class TeamOrUserNotFoundHTTPException(TeamManagerHTTPException):
     status_code = 404
-    detail = "Команда или пользователь не найдены"
+    detail = "Команда с переданным team_id или пользователь с переданным user_id не найдены"
 
 class UserInviteAlreadyExistsHTTPException(TeamManagerHTTPException):
     status_code = 409
@@ -133,3 +142,15 @@ class TeamNotExistHTTPException(TeamManagerHTTPException):
 class MemberRoleUpdateHTTPException(TeamManagerHTTPException):
     status_code = 404
     detail = "Ошибка с базой данных. Не удалось обновить роль"
+
+class TaskCreateHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "Ошибка с базой данных. Не удалось создать задачу"
+
+class TaskOrTeamNotFoundHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "Команда с указанным team_id или задача с переданным task_id не найдена"
+
+class TeamTaskEmptyHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "В команде еще нет ни одной задачи"

@@ -1,3 +1,4 @@
+from app.repositories.tasks import TaskRepository
 from app.repositories.teammembers import TeamMemberRepository
 from app.repositories.teams import TeamRepository
 from app.repositories.users import UserRepository
@@ -11,6 +12,7 @@ class DBManager:
         self.users = UserRepository(self.session)
         self.teams = TeamRepository(self.session)
         self.team_members = TeamMemberRepository(self.session)
+        self.tasks = TaskRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):

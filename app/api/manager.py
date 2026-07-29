@@ -17,7 +17,7 @@ from app.services.auth import AuthService
 from app.services.teammembers import TeamMembersService
 from app.services.teams import TeamService
 
-router = APIRouter(prefix="/manager", tags=["Эндпоинты менеджера"])
+router = APIRouter(prefix="/manager", tags=["Эндпоинты менеджера по управлению командой"])
 
 
 @router.post("/login", summary="Войти в систему", description="Введите email и пароль")
@@ -63,9 +63,6 @@ async def register_team(db:DBDep, team_data: TeamRequestAdd, request: Request, t
             return await TeamService(db).create_team(team_data, creator_id)
         else:
             raise UserNotEnoughRightsHTTPException
-
-    except ExpiredSignatureError:
-        raise TokenExpiredHTTPException
     except TeamAlreadyExistsException:
         raise TeamAlreadyExistsHTTPException
 
@@ -83,8 +80,7 @@ async def join_team(db: DBDep, team_id: int, user_id: int, join_data: JoinTeam, 
         raise InvalidInviteCodeHTTPException
     except UserInviteAlreadyExistsException:
         raise UserInviteAlreadyExistsHTTPException
-    except ExpiredSignatureError:
-        raise TokenExpiredHTTPException
+
 
 @router.get("/members", summary="Показать список участников в команде")
 async def get_list_members(db: DBDep, team_id: int, token: ManagerAdminDep):
@@ -93,8 +89,6 @@ async def get_list_members(db: DBDep, team_id: int, token: ManagerAdminDep):
             return await TeamMembersService(db).get_list_members(team_id)
         else:
             raise UserNotEnoughRightsHTTPException
-    except ExpiredSignatureError:
-        raise TokenExpiredHTTPException
     except TeamNotFoundException:
         raise TeamNotFoundHTTPException
     except TeamEmptyException:
@@ -107,27 +101,32 @@ async def get_list_teams(db:DBDep, token: ManagerAdminDep):
             return await TeamService(db).get_list_teams()
         else:
             raise UserNotEnoughRightsHTTPException
-    except ExpiredSignatureError:
-        raise TokenExpiredHTTPException
     except TeamNotExistException:
         raise TeamNotExistHTTPException
 
-@router.patch("/{user_id}/update_member")
-async def update_member_role(db:DBDep, team_id: int, user_id: int, update_data: TeamMemberPATCHRole, token: ManagerAdminDep):
+@router.patch("/{user_id}/update_member", summary="Обновить роль пользователя в команде")
+async def update_member_role(db: DBDep, team_id: int, user_id: int, update_data: TeamMemberPATCHRole, token: ManagerAdminDep):
     try:
         if token:
             await TeamMembersService(db).update_member_role(team_id, user_id, update_data)
             return "Обновление роли произошло успешно"
         else:
             raise UserNotEnoughRightsHTTPException
-    except ExpiredSignatureError:
-        raise TokenExpiredHTTPException
     except TeamOrUserNotFoundException:
         raise TeamOrUserNotFoundHTTPException
     except MemberRoleUpdateException:
         raise MemberRoleUpdateHTTPException
 
-
+@router.delete("/delete_member", summary="Исключить пользователя из команды")
+async def delete_member(db: DBDep, team_id: int, user_id: int, token: ManagerAdminDep):
+    try:
+        if token:
+            await TeamMembersService(db).delete_member(team_id, user_id)
+            return "Пользователь исключен из команды"
+        else:
+            raise UserNotEnoughRightsHTTPException
+    except TeamOrUserNotFoundException:
+        raise TeamOrUserNotFoundHTTPException
 
 
 @router.post("/logout", summary="Выйти из системы")

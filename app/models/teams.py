@@ -14,3 +14,4 @@ class TeamOrm(Base):
 
     creator = relationship("UserOrm", back_populates="created_teams")
     members = relationship("TeamMemberOrm", back_populates="team")
+    tasks = relationship("TaskOrm", back_populates="team")

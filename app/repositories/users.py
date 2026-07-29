@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from sqlalchemy import select, or_
 from sqlalchemy.exc import NoResultFound
 
-from app.exceptions import UserNotEnoughRightsException, UserNotManagerOrAdminException
+from app.exceptions import UserNotEnoughRightsException, UserNotManagerOrAdminException, UserNotFoundException
 from app.models import UserOrm
 from app.repositories.base import BaseRepository
 from app.repositories.mappers.mappers import UserDataMapper
@@ -30,6 +30,17 @@ class UserRepository(BaseRepository):
             return UserCheckAdmin.model_validate(model)
         except NoResultFound as ex:
             raise  UserNotManagerOrAdminException from ex
+
+    async def check_user_exists(self, user_id: int):
+        try:
+            query = select(self.model).filter_by(id=user_id)
+            result = await self.session.execute(query)
+            model = result.scalars().first()
+            if model:
+                return True
+            return False
+        except NoResultFound as ex:
+            raise UserNotFoundException from ex
 
 
 

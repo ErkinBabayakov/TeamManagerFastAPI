@@ -60,11 +60,12 @@ class BaseRepository:
                 logging.exception("Неизвестная ошибка")
                 raise ex
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = True, exclude_none: bool = False, **filter_by) -> None:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, exclude_none: bool = False, **filter_by) -> None:
         edit_data_stmt = (update(self.model)
                           .filter_by(**filter_by)
                           .values(**data.model_dump(exclude_unset=exclude_unset, exclude_none=exclude_none)))
         await self.session.execute(edit_data_stmt)
+
 
     async def delete(self, **filter_by) -> None:
         delete_data_stmt = delete(self.model).filter_by(**filter_by)
