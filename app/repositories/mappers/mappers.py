@@ -1,5 +1,7 @@
 from app.models import UserOrm, TeamOrm, TeamMemberOrm, TaskOrm
+from app.models.comments import CommentOrm
 from app.repositories.mappers.base import DataMapper
+from app.schemas.comments import Comment
 from app.schemas.tasks import Task
 from app.schemas.teammembers import TeamMember
 from app.schemas.teams import Team
@@ -21,3 +23,7 @@ class TeamMemberDataMapper(DataMapper):
 class TaskDataMapper(DataMapper):
     db_model = TaskOrm
     schema = Task
+
+class CommentDataMapper(DataMapper):
+    db_model = CommentOrm
+    schema = Comment

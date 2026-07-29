@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from app.exceptions import TaskCreateException, TaskCreateHTTPException, TeamNotFoundException, ObjectNotFoundException, \
-    TaskOrTeamNotFoundException, TeamTaskEmptyException
+    TaskOrTeamNotFoundException, TeamTaskEmptyException, TaskNotFoundException
 from app.schemas.tasks import TaskRequestAdd, TaskAdd, TaskPATCH, TaskUpdate
 from app.services.base import BaseService
 
@@ -73,6 +73,18 @@ class TaskService(BaseService):
                 raise TaskOrTeamNotFoundException
         except ObjectNotFoundException as ex:
             raise TaskOrTeamNotFoundException from ex
+
+    async def get_user_tasks(self, assignee_id: int):
+        try:
+            tasks = await self.db.tasks.get_all(assignee_id=assignee_id)
+            if tasks:
+                await self.db.commit()
+                return [{"Заголовок задачи": task.title, "Описание": task.description} for task in tasks]
+            else:
+                raise TaskNotFoundException
+        except ObjectNotFoundException:
+            raise TaskNotFoundException
+
 
 
 

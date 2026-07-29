@@ -11,7 +11,7 @@ from app.schemas.users import UserEnter
 from app.services.auth import AuthService
 from app.services.tasks import TaskService
 
-router = APIRouter(prefix="/manager_tasks", tags=["Эндпоинты менеджера по управлению задачами"])
+router = APIRouter(prefix="/manager_tasks", tags=["Эндпоинты менеджера для управления задачами"])
 
 @router.post("/login", summary="Войти в систему", description="Введите email и пароль")
 async def login_user(db: DBDep, user_data: UserEnter, response: Response):

@@ -25,3 +25,4 @@ class TaskOrm(Base):
     team = relationship("TeamOrm", back_populates="tasks")
     creator = relationship("UserOrm", foreign_keys=[creator_id], back_populates="created_tasks")
     assignee = relationship("UserOrm", foreign_keys=[assignee_id], back_populates="assigned_tasks")
+    comments = relationship("CommentOrm", back_populates="task")

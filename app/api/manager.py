@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Response, Request, Depends
+from fastapi import APIRouter, Response, Request, Body
 from jwt.exceptions import ExpiredSignatureError
-from app.dependencies import DBDep, ManagerAdminDep, get_db
+from app.dependencies import DBDep, ManagerAdminDep
 from app.exceptions import EmailNotRegisteredException, EmailNotRegisteredHTTPException, IncorrectPasswordException, \
     IncorrectPasswordHTTPException, TokenExpiredHTTPException, UserNotFoundException, UserNotFoundHTTPException, \
     UserNotEnoughRightsException, UserNotEnoughRightsHTTPException, TokenExpiredException, \
@@ -17,7 +17,7 @@ from app.services.auth import AuthService
 from app.services.teammembers import TeamMembersService
 from app.services.teams import TeamService
 
-router = APIRouter(prefix="/manager", tags=["Эндпоинты менеджера по управлению командой"])
+router = APIRouter(prefix="/manager", tags=["Эндпоинты менеджера для создания и управления командами"])
 
 
 @router.post("/login", summary="Войти в систему", description="Введите email и пароль")
@@ -54,7 +54,7 @@ async def get_me(db: DBDep, request: Request):
 
 
 @router.post("/register/team", summary="Создать команду")
-async def register_team(db:DBDep, team_data: TeamRequestAdd, request: Request, token: ManagerAdminDep):
+async def register_team(db:DBDep, request: Request, token: ManagerAdminDep, team_data: TeamRequestAdd):
     try:
         if token:
             token_user = request.cookies.get("access_token", None)

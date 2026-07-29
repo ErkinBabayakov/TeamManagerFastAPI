@@ -21,6 +21,9 @@ class TeamNotFoundException(ObjectNotFoundException):
 class TaskOrTeamNotFoundException(ObjectNotFoundException):
     detail = "Команда с указанным team_id или задача с переданным task_id не найдена"
 
+class TaskNotFoundException(ObjectNotFoundException):
+    detail = "Задача с указанныи task_id не найдена"
+
 class MemberRoleUpdateException(TeamManagerException):
     detail = "Ошибка с базой данных. Не удалось обновить роль"
 
@@ -105,7 +108,7 @@ class UserNotFoundHTTPException(TeamManagerHTTPException):
 
 class TokenExpiredHTTPException(TeamManagerHTTPException):
     status_code = 401
-    detail = "Вы не предоставили токен доступа, пройдите аутентификацию"
+    detail = "Токен доступа истек, пройдите аутентификацию"
 
 class UserNotManagerOrAdminHTTPException(TeamManagerHTTPException):
     status_code = 403
@@ -154,3 +157,7 @@ class TaskOrTeamNotFoundHTTPException(TeamManagerHTTPException):
 class TeamTaskEmptyHTTPException(TeamManagerHTTPException):
     status_code = 404
     detail = "В команде еще нет ни одной задачи"
+
+class TaskNotFoundHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "Задача с указанныи task_id не найдена"

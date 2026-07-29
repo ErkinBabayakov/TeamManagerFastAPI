@@ -3,9 +3,11 @@ from jwt.exceptions import ExpiredSignatureError
 from app.dependencies import DBDep
 from app.exceptions import UserNotFoundException, UserNotFoundHTTPException, UserNotEnoughRightsException, \
     UserNotEnoughRightsHTTPException, TokenExpiredHTTPException, EmailNotRegisteredException, \
-    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException
+    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException, TaskNotFoundException, \
+    TaskNotFoundHTTPException
 from app.schemas.users import  UserEnter
 from app.services.auth import AuthService
+from app.services.tasks import TaskService
 
 router = APIRouter(prefix="/member", tags=["Эндпоинты сотрудников"])
 
@@ -38,6 +40,18 @@ async def get_me(db: DBDep, request: Request):
         raise UserNotEnoughRightsHTTPException
     except ExpiredSignatureError:
         raise TokenExpiredHTTPException
+
+@router.get("/my_tasks", summary="Посмотреть мои задачи")
+async def get_my_tasks(db: DBDep, request: Request):
+    try:
+        token = request.cookies.get("access_token", None)
+        if not token:
+            raise TokenExpiredHTTPException
+        decode_token = AuthService(db).decode_token(token)
+        user_id = decode_token.get("user_id")
+        return await TaskService(db).get_user_tasks(user_id)
+    except TaskNotFoundException:
+        raise TaskNotFoundHTTPException
 
 
 @router.post("/logout", summary="Выйти из системы")
