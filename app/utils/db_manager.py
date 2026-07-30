@@ -1,4 +1,5 @@
 from app.repositories.comments import CommentRepository
+from app.repositories.evaluations import EvaluationRepository
 from app.repositories.tasks import TaskRepository
 from app.repositories.teammembers import TeamMemberRepository
 from app.repositories.teams import TeamRepository
@@ -15,6 +16,7 @@ class DBManager:
         self.team_members = TeamMemberRepository(self.session)
         self.tasks = TaskRepository(self.session)
         self.comments = CommentRepository(self.session)
+        self.evaluations = EvaluationRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):

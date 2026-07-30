@@ -5,11 +5,13 @@ from pydantic import BaseModel
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
-from app.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
+from app.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException, TaskNotFoundException, \
+    TaskStatusException
 from app.models import TaskOrm
+from app.models.tasks import TaskStatus
 from app.repositories.base import BaseRepository
 from app.repositories.mappers.mappers import TaskDataMapper
-from app.schemas.tasks import TaskPATCH
+
 
 
 class TaskRepository(BaseRepository):
@@ -34,9 +36,30 @@ class TaskRepository(BaseRepository):
         try:
             query = select(self.model).filter_by(id=task_id)
             result = await self.session.execute(query)
-            result = result.scalars().one()
-            if result:
+            model = result.scalars().one()
+            if model:
                 return True
             return False
         except NoResultFound as ex:
-            raise ObjectNotFoundException from ex
+            raise TaskNotFoundException from ex
+
+    async def check_task_status(self, task_id: int) -> bool:
+        try:
+            query = select(self.model).where(self.model.id == task_id, self.model.status == TaskStatus.done)
+            result = await self.session.execute(query)
+            model = result.scalars().first()
+            if model:
+                return True
+            return False
+        except NoResultFound as ex:
+            raise TaskStatusException from ex
+
+    async def get_title_task(self, assignee_id: int):
+        try:
+            query = select(self.model.title).filter_by(assignee_id=assignee_id)
+            result = await self.session.execute(query)
+            return result.scalars().all()
+        except NoResultFound as ex:
+            raise TaskStatusException from ex
+
+

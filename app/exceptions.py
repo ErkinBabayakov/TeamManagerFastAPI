@@ -24,11 +24,20 @@ class TaskOrTeamNotFoundException(ObjectNotFoundException):
 class TaskNotFoundException(ObjectNotFoundException):
     detail = "Задача с указанныи task_id не найдена"
 
+class TasksNotExistsException(ObjectNotFoundException):
+    detail = "У вас нет активных задач"
+
 class MemberRoleUpdateException(TeamManagerException):
     detail = "Ошибка с базой данных. Не удалось обновить роль"
 
 class TaskCreateException(TeamManagerException):
     detail = "Ошибка с базой данных. Не удалось создать задачу"
+
+class TaskStatusException(TeamManagerException):
+    detail = "Статус задачи не равен done!"
+
+class EvalCreateException(TeamManagerException):
+    detail = "Ошибка с базой данных. Не удалось добавить оценку к задаче"
 
 class TeamNotExistException(ObjectNotFoundException):
     detail = "Пока еще не создана ни одна команда"
@@ -74,6 +83,9 @@ class TokenExpiredException(TeamManagerException):
 
 class InvalidInviteCodeException(TeamManagerException):
     detail = "Недействительный код приглашения в команду"
+
+
+
 
 class TeamManagerHTTPException(HTTPException):
     status_code = 500
@@ -161,3 +173,15 @@ class TeamTaskEmptyHTTPException(TeamManagerHTTPException):
 class TaskNotFoundHTTPException(TeamManagerHTTPException):
     status_code = 404
     detail = "Задача с указанныи task_id не найдена"
+
+class TaskStatusHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "Статус задачи не равен done!"
+
+class EvalCreateHTTPException(TeamManagerHTTPException):
+    status_code = 409
+    detail = "Ошибка с базой данных. Не удалось добавить оценку к задаче"
+
+class TasksNotExistsHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "У вас нет активных задач"

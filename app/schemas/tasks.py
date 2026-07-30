@@ -72,5 +72,9 @@ class TaskUpdate(BaseModel):
             return value.astimezone(timezone.utc).replace(tzinfo=None)
         return value
 
+class TaskResponse(BaseModel):
+    title: str
+
+
 
 

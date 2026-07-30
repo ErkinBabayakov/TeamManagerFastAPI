@@ -4,7 +4,7 @@ from app.dependencies import DBDep
 from app.exceptions import UserNotFoundException, UserNotFoundHTTPException, UserNotEnoughRightsException, \
     UserNotEnoughRightsHTTPException, TokenExpiredHTTPException, EmailNotRegisteredException, \
     EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException, TaskNotFoundException, \
-    TaskNotFoundHTTPException
+    TaskNotFoundHTTPException, TasksNotExistsHTTPException, TasksNotExistsException, TokenExpiredException
 from app.schemas.users import  UserEnter
 from app.services.auth import AuthService
 from app.services.tasks import TaskService
@@ -50,9 +50,20 @@ async def get_my_tasks(db: DBDep, request: Request):
         decode_token = AuthService(db).decode_token(token)
         user_id = decode_token.get("user_id")
         return await TaskService(db).get_user_tasks(user_id)
-    except TaskNotFoundException:
-        raise TaskNotFoundHTTPException
+    except TasksNotExistsException:
+        raise TasksNotExistsHTTPException
 
+@router.get("/my_evaluations", summary="Посмотреть мои оценки")
+async def get_my_evaluations(db: DBDep, request: Request):
+    try:
+        token = request.cookies.get("access_token", None)
+        decode_token = AuthService(db).decode_token(token)
+        assignee_id = decode_token.get("user_id")
+        return await TaskService(db).get_my_evaluations(assignee_id)
+    except TasksNotExistsException:
+        raise TasksNotExistsHTTPException
+    except TokenExpiredException:
+        raise TokenExpiredHTTPException
 
 @router.post("/logout", summary="Выйти из системы")
 async def logout(response: Response):
