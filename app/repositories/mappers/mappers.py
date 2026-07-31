@@ -1,8 +1,10 @@
-from app.models import UserOrm, TeamOrm, TeamMemberOrm, TaskOrm, EvaluationOrm
+from app.models import UserOrm, TeamOrm, TeamMemberOrm, TaskOrm, EvaluationOrm, MeetingOrm, MeetingParticipantOrm
 from app.models.comments import CommentOrm
 from app.repositories.mappers.base import DataMapper
 from app.schemas.comments import Comment
 from app.schemas.evaluations import Evaluation
+from app.schemas.meetingparticipants import MeetingParticipant
+from app.schemas.meetings import Meeting
 from app.schemas.tasks import Task
 from app.schemas.teammembers import TeamMember
 from app.schemas.teams import Team
@@ -33,3 +35,10 @@ class EvaluationDataMapper(DataMapper):
     db_model = EvaluationOrm
     schema = Evaluation
 
+class MeetingDataMapper(DataMapper):
+    db_model = MeetingOrm
+    schema = Meeting
+
+class MeetingParticipantDataMapper(DataMapper):
+    db_model = MeetingParticipantOrm
+    schema = MeetingParticipant

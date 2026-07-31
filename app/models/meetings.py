@@ -5,7 +5,7 @@ from app.database import Base
 
 class MeetingOrm(Base):
     __tablename__ = "meetings"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(150), nullable=False)
     starts_at: Mapped[datetime] = mapped_column(nullable=False)
     ends_at: Mapped[datetime] = mapped_column(nullable=False)
@@ -16,11 +16,11 @@ class MeetingOrm(Base):
 
     team = relationship("TeamOrm", back_populates="meetings")
     organizer = relationship("UserOrm")
-    participants = relationship("MeetingParticipantOrm", back_populates="meeting")
+    participants = relationship("MeetingParticipantOrm", back_populates="meeting", cascade="all, delete-orphan")
 
 class MeetingParticipantOrm(Base):
     __tablename__ = "meeting_participants"
-    meeting_id: Mapped[int] = mapped_column(ForeignKey("meetings.id"), primary_key=True)
+    meeting_id: Mapped[int] = mapped_column(ForeignKey("meetings.id", ondelete="CASCADE"), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     joined_at: Mapped[datetime] = mapped_column(default=datetime.now)
 

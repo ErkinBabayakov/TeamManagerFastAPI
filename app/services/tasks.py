@@ -115,8 +115,10 @@ class TaskService(BaseService):
                 await self.db.commit()
                 return evaluations.get("eval_data"), f" средняя оценка за задания = {round(evaluations.get('avg_eval'), 1)}"
             else:
-                raise TasksNotExistsException
+                raise ObjectNotFoundException
         except ObjectNotFoundException:
+            raise TasksNotExistsException
+        except TypeError:
             raise TasksNotExistsException
 
 

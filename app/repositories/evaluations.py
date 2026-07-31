@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import insert, select, func
 from sqlalchemy.exc import IntegrityError
 
-from app.exceptions import ObjectAlreadyExistsException
+from app.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException
 from app.models import EvaluationOrm, TaskOrm
 from app.repositories.base import BaseRepository
 
@@ -33,17 +33,20 @@ class EvaluationRepository(BaseRepository):
 
 
     async def get_my_evaluations(self, assignee_id: int):
-        query = (
-            select(TaskOrm.title, EvaluationOrm.score, EvaluationOrm.comment)
-            .outerjoin(TaskOrm.evaluation)
-            .where(TaskOrm.assignee_id == assignee_id)
-        )
-        result = await self.session.execute(query)
-        model = result.mappings().all()
+       try:
+            query = (
+                select(TaskOrm.title, EvaluationOrm.score, EvaluationOrm.comment)
+                .outerjoin(TaskOrm.evaluation)
+                .where(TaskOrm.assignee_id == assignee_id)
+            )
+            result = await self.session.execute(query)
+            model = result.mappings().all()
 
-        avg_query = select(func.avg(EvaluationOrm.score)).join(TaskOrm.evaluation).where(TaskOrm.assignee_id == assignee_id)
-        avg_result = await self.session.execute(avg_query)
-        avg = avg_result.scalars().one()
-        return {"eval_data": model, "avg_eval": avg}
+            avg_query = select(func.avg(EvaluationOrm.score)).join(TaskOrm.evaluation).where(TaskOrm.assignee_id == assignee_id)
+            avg_result = await self.session.execute(avg_query)
+            avg = avg_result.scalars().one()
+            return {"eval_data": model, "avg_eval": avg}
+       except TypeError as ex:
+           raise ObjectNotFoundException from ex
 
 

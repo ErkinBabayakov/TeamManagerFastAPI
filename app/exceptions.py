@@ -6,6 +6,9 @@ class TeamManagerException(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(self.detail, *args, **kwargs)
 
+class DataBaseException(TeamManagerException):
+    detail = "Ошибка с базой данных. Не удалось выполнить операцию"
+
 class UserNotEnoughRightsException(TeamManagerException):
     detail = "У вас недостаточно прав для выполнения этой операции"
 
@@ -84,7 +87,11 @@ class TokenExpiredException(TeamManagerException):
 class InvalidInviteCodeException(TeamManagerException):
     detail = "Недействительный код приглашения в команду"
 
+class UsersInMeetingsNotFoundException(TeamManagerException):
+    detail = "Пользователи не добавлены на встречу"
 
+class MeetingNotFoundException(TeamManagerException):
+    detail = "Встреча не найдена"
 
 
 class TeamManagerHTTPException(HTTPException):
@@ -185,3 +192,14 @@ class EvalCreateHTTPException(TeamManagerHTTPException):
 class TasksNotExistsHTTPException(TeamManagerHTTPException):
     status_code = 404
     detail = "У вас нет активных задач"
+
+class UsersInMeetingsNotFoundHTTPException(TeamManagerHTTPException):
+    status_code = 400
+    detail = "Пользователи c такими id не существуют"
+
+class MeetingNotFoundHTTPException(TeamManagerHTTPException):
+    status_code = 404
+    detail = "Встреча не найдена"
+
+class DataBaseHTTPException(TeamManagerHTTPException):
+    detail = "Ошибка с базой данных. Не удалось выполнить операцию"
