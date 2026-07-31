@@ -1,12 +1,12 @@
 import logging
 
 from asyncpg import UniqueViolationError
+from datetime import datetime
 from pydantic import BaseModel
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
-from app.exceptions import ObjectAlreadyExistsException, ObjectNotFoundException, TaskNotFoundException, \
-    TaskStatusException
+from app.exceptions import ObjectAlreadyExistsException, TaskNotFoundException, TaskStatusException
 from app.models import TaskOrm
 from app.models.tasks import TaskStatus
 from app.repositories.base import BaseRepository
@@ -61,5 +61,16 @@ class TaskRepository(BaseRepository):
             return result.scalars().all()
         except NoResultFound as ex:
             raise TaskStatusException from ex
+
+    async def get_tasks(self, team_ids: list, from_date: datetime, to_date: datetime):
+        try:
+            query = select(self.model).filter(self.model.team_id.in_(team_ids),
+                                              self.model.due_date >= from_date,
+                                              self.model.due_date <= to_date)
+            result = await self.session.execute(query)
+            model = result.scalars().all()
+            return model
+        except NoResultFound as ex:
+            raise TaskNotFoundException from ex
 
 

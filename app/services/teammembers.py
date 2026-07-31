@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
 from app.exceptions import TeamNotFoundException, InvalidInviteCodeException, UserAlreadyExistsException, \
     ObjectAlreadyExistsException, UserInviteAlreadyExistsException, ObjectNotFoundException, TeamEmptyException, \
     TeamManagerException, UserNotFoundException, TeamOrUserNotFoundException, MemberRoleUpdateException
+from app.schemas.calendar import CalendarEvent, CalendarEventValidateDate
 from app.schemas.teammembers import JoinTeam, TeamMemberAdd, TeamMemberPATCH, TeamMemberPATCHRole
 from app.services.base import BaseService
 
@@ -60,5 +62,46 @@ class TeamMembersService(BaseService):
                 raise TeamOrUserNotFoundException
         except ObjectNotFoundException as ex:
             raise TeamOrUserNotFoundException from ex
+
+    async def get_team_ids(self, current_user_id, from_date: datetime, to_date: datetime):
+        try:
+            # Команды пользователя
+            team_ids = await self.db.team_members.get_team_ids(current_user_id)
+            if not team_ids:
+                return []
+
+            validate_data = CalendarEventValidateDate(
+                start=from_date,
+                end=to_date,
+            )
+            # Задачи: due_date в диапазане
+            # tasks = await self.db.tasks.get_tasks(team_ids, from_date, to_date)
+            tasks = await self.db.tasks.get_tasks(team_ids, validate_data.start, validate_data.end)
+
+            # Встречи, где пользователь участник
+            # meetings = await self.db.meetings.get_meetings(current_user_id, from_date, to_date)
+            meetings = await self.db.meetings.get_meetings(current_user_id, validate_data.start, validate_data.end)
+            events = []
+            for task in tasks:
+                events.append(CalendarEvent(
+                    id=task.id, title=task.title, start=task.start,
+                    end=task.end, type="task", status=task.status
+                ))
+            for meeting in meetings:
+                events.append(CalendarEvent(
+                    id=meeting.id, title=meeting.title, start=meeting.starts_at,
+                    end=meeting.ends_at, type="meeting", status=None
+                ))
+            return events
+
+        except ValueError as ex:
+            raise ValueError from ex
+
+    def to_naive_utc(self, dt: datetime) -> datetime:
+        """Преобразует aware datetime в naive UTC (отбрасывает tzinfo)."""
+        if dt.tzinfo is not None:
+            return dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
+
 
 

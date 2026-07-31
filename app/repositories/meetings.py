@@ -1,16 +1,13 @@
 from datetime import datetime
 from typing import List
-
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import selectinload
-from app.exceptions import TeamNotFoundException, UserNotFoundException, ObjectNotFoundException, \
-    MeetingNotFoundException
+from app.exceptions import TeamNotFoundException, UserNotFoundException, MeetingNotFoundException
 from app.models import MeetingOrm, MeetingParticipantOrm, UserOrm, TeamMemberOrm
 from app.repositories.base import BaseRepository
 from app.repositories.mappers.mappers import MeetingDataMapper
-from app.schemas.meetings import MeetingOut
+
 
 
 class MeetingsRepository(BaseRepository):
@@ -56,7 +53,7 @@ class MeetingsRepository(BaseRepository):
 
 
     async def get_meeting_data(self, all_participants: set):
-        query = select(UserOrm.email,UserOrm.first_name, UserOrm.last_name, UserOrm.role).filter(UserOrm.id.in_(all_participants))
+        query = select(UserOrm.id, UserOrm.email,UserOrm.first_name, UserOrm.last_name, UserOrm.role).filter(UserOrm.id.in_(all_participants))
         result = await self.session.execute(query)
         model = result.mappings().all()
         return model
@@ -76,6 +73,19 @@ class MeetingsRepository(BaseRepository):
             return model
         except NoResultFound:
             raise MeetingNotFoundException
+
+    async def get_meetings(self, current_user_id: int, from_date: datetime, to_date: datetime):
+        try:
+            query = select(self.model).join(MeetingParticipantOrm).filter(
+                MeetingParticipantOrm.user_id == current_user_id,
+                self.model.starts_at >= from_date,
+                self.model.ends_at <= to_date,
+            )
+            result = await self.session.execute(query)
+            model = result.scalars().all()
+            return model
+        except NoResultFound as ex:
+            raise MeetingNotFoundException from ex
 
 
 

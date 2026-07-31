@@ -15,6 +15,7 @@ from app.api.manager import router as manager_router
 from app.api.manager_tasks import router as manager_tasks_router
 from app.api.comment import router as comment_router
 from app.api.meetings import router as meetings_router
+from app.api.calendar import router as calendar_router
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Team Manager API")
@@ -25,6 +26,8 @@ app.include_router(manager_router)
 app.include_router(manager_tasks_router)
 app.include_router(comment_router)
 app.include_router(meetings_router)
+app.include_router(calendar_router)
+
 setup_admin(app)
 
 @app.get("/", response_class=HTMLResponse, tags=["Главная страница документации"])

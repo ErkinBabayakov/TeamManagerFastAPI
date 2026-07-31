@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
-from app.exceptions import TeamOrUserNotFoundException, MemberRoleUpdateException
+from app.exceptions import TeamOrUserNotFoundException, MemberRoleUpdateException, ObjectNotFoundException
 from app.models import TeamMemberOrm
 from app.repositories.base import BaseRepository
 from app.repositories.mappers.mappers import TeamMemberDataMapper
@@ -42,4 +42,15 @@ class TeamMemberRepository(BaseRepository):
             await self.session.execute(update_data_stmt)
         except IntegrityError:
             raise MemberRoleUpdateException
+
+    async def get_team_ids(self, current_user_id: int):
+        try:
+            query = select(self.model.team_id).filter(self.model.user_id == current_user_id)
+            result = await self.session.execute(query)
+            model = [tm.team_id for tm in result.all()]
+            return model
+        except NoResultFound as ex:
+            raise ObjectNotFoundException from ex
+
+
 
