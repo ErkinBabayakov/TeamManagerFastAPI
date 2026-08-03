@@ -5,7 +5,8 @@
 ## Установка
 
 1. Склонируйте репозиторий к себе на локальную машину
-    ```https://github.com/ErkinBabayakov/TeamManagerFastAPI.git
+    ```
+    git clone https://github.com/ErkinBabayakov/TeamManagerFastAPI.git
     ```
 2. Перейдите в папку с проектом
 3. При необходимости создайте и активируйте виртуальное окружение
