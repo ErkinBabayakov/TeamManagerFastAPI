@@ -8,6 +8,7 @@ from app.repositories.teams import TeamRepository
 from app.repositories.users import UserRepository
 
 class DBManager:
+    """ Класс, реализующий асинхронный контекстный менеджер для взаимодействия с репозиторием"""
     def __init__(self, session_factory):
         self.session_factory = session_factory
 

@@ -1,13 +1,12 @@
-import json
-
-from fastapi import APIRouter, Response, Request
+from fastapi import APIRouter, Response
 from sqlalchemy.exc import NoResultFound
 
-from app.dependencies import DBDep, UserIdDep, get_token, UserTokenDep, ManagerAdminDep
+from app.dependencies import DBDep, UserIdDep, UserTokenDep
 from app.exceptions import UserAlreadyExistsException, UserEmailAlreadyExistsHTTPException, EmailNotCorrectException, \
     EmailNotCorrectHTTPException, UserNotEnoughRightsException, UserNotEnoughRightsHTTPException, \
     EmailNotRegisteredException, EmailNotRegisteredHTTPException, IncorrectPasswordException, \
-    IncorrectPasswordHTTPException, UserNotFoundException, UserNotFoundHTTPException
+    IncorrectPasswordHTTPException, UserNotFoundException, UserNotFoundHTTPException, UserNotAdminException, \
+    UserNotAdminHTTPException
 from app.schemas.users import UserPATCH, UserUpdate, UserRequestAdd, UserEnter
 from app.services.auth import AuthService
 
@@ -22,7 +21,7 @@ async def register_user(db: DBDep, data: UserRequestAdd):
     except EmailNotCorrectException:
         raise EmailNotCorrectHTTPException
 
-    return {"status": "OK"}
+    return "Пользователь успешно зарегистрирован"
 
 @router.post("/login", summary="Войти в систему", description="Введите email и пароль")
 async def login_user(db: DBDep, data: UserEnter, response: Response):
@@ -36,15 +35,16 @@ async def login_user(db: DBDep, data: UserEnter, response: Response):
         raise IncorrectPasswordHTTPException
     except NoResultFound:
         raise EmailNotRegisteredHTTPException
+    except UserNotAdminException:
+        raise UserNotAdminHTTPException
 
     response.set_cookie("access_token", access_token)
     return "Вы успешно вошли в систему"
 
-@router.get("/me", summary="Получить информацию о пользователе")
+@router.get("/{user_id}/user_info", summary="Получить информацию о пользователе")
 async def get_me(db: DBDep, user_id: UserIdDep, user_token: UserTokenDep):
     try:
         if user_token:
-            await AuthService(db).get_me(user_id)
             return await AuthService(db).get_me(user_id)
         else:
             raise UserNotEnoughRightsHTTPException
@@ -56,7 +56,7 @@ async def get_me(db: DBDep, user_id: UserIdDep, user_token: UserTokenDep):
 
 @router.get("/users", summary="Получить информацию о пользователях",
             description="Информация обо всех пользователях, зарегистрированных в системе")
-async def get_users(db: DBDep, user_token: ManagerAdminDep):
+async def get_users(db: DBDep, user_token: UserTokenDep):
     try:
         if user_token:
             return await AuthService(db).get_all()

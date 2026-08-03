@@ -1,20 +1,23 @@
-
 import jwt
 from datetime import datetime, timedelta, timezone
-from fastapi import HTTPException, Response, Request
+from fastapi import HTTPException
 from passlib.context import CryptContext
+from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError, NoResultFound
+from typing import Any
 
 from app.config import settings
 from app.exceptions import ObjectAlreadyExistsException, UserAlreadyExistsException, UserNotEnoughRightsException, \
     EmailNotRegisteredException, IncorrectPasswordException, ObjectNotFoundException, UserNotFoundException, \
-    EmailNotRegisteredHTTPException, UserNotManagerOrAdminException
+    EmailNotRegisteredHTTPException, UserNotManagerOrAdminException, UserNotAdminException
 from app.schemas.users import UserAdd, UserRequestAdd, UserEnter, UserUpdate, UserUpdateWithHashPassword, UserPATCH, \
-    UserPATCHUpdateWithHashPassword, UserPATCHUpdateWithoutHashPassword, UserDelete, User, UserRole
+    UserPATCHUpdateWithHashPassword, UserPATCHUpdateWithoutHashPassword, UserRole
 from app.services.base import BaseService
 
 
 class AuthService(BaseService):
+    """Класс, содержащий основную бизнес-логику для действий с пользователем"""
+
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     def create_access_token(self, data: dict) -> str:
@@ -41,7 +44,7 @@ class AuthService(BaseService):
             raise HTTPException(status_code=401, detail="Неверный токен")
 
 
-    async def register_user(self, user_data: UserRequestAdd):
+    async def register_user(self, user_data: UserRequestAdd) -> None:
         hashed_password = self.hash_password(user_data.password)
         new_user_data = UserAdd(
             email=user_data.email,
@@ -56,21 +59,22 @@ class AuthService(BaseService):
         except ObjectAlreadyExistsException as ex:
             raise UserAlreadyExistsException from ex
 
-    async def login_admin(self, user_data: UserEnter):
+
+    async def login_admin(self, user_data: UserEnter) -> str:
 
         user = await self.db.users.get_user_with_hashed_password(email=user_data.email)
         if not user:
             raise EmailNotRegisteredException
         user_admin = await self.db.users.check_verify_admin_user(user_id=user.id)
         if user_admin.role != UserRole.admin:
-            raise UserNotEnoughRightsException
+            raise UserNotAdminException
         if not self.verify_password(user_data.password, user.hashed_password):
             raise IncorrectPasswordException
         access_token = AuthService().create_access_token({"user_id": user.id, "first_name": user.first_name,
                                                           "last_name": user.last_name, "role": user.role})
         return access_token
 
-    async def login_manager(self, user_data: UserEnter):
+    async def login_manager(self, user_data: UserEnter) -> str:
         user = await self.db.users.get_user_with_hashed_password(email=user_data.email)
         if not user:
             raise EmailNotRegisteredException
@@ -83,7 +87,7 @@ class AuthService(BaseService):
                                                           "last_name": user.last_name, "role": user.role})
         return access_token
 
-    async def login_user(self, user_data: UserEnter):
+    async def login_user(self, user_data: UserEnter) -> str:
         try:
             user = await self.db.users.get_user_with_hashed_password(email=user_data.email)
             if not user:
@@ -96,20 +100,20 @@ class AuthService(BaseService):
         except NoResultFound:
             raise EmailNotRegisteredHTTPException
 
-    async def get_me(self, user_id: int):
+    async def get_me(self, user_id: int) -> BaseModel:
         try:
             user = await self.db.users.get_one(id=user_id)
             return user
         except ObjectNotFoundException as ex:
             raise UserNotFoundException from ex
 
-    async def get_all(self):
+    async def get_all(self) -> list[BaseModel | Any]:
         try:
             return await self.db.users.get_all()
         except ObjectNotFoundException as ex:
             raise UserNotFoundException from ex
 
-    async def update_user(self, user_id: int, user_data: UserUpdate):
+    async def update_user(self, user_id: int, user_data: UserUpdate) -> None:
         try:
             existing_user = await self.get_me(user_id)
             if not existing_user:
@@ -122,11 +126,9 @@ class AuthService(BaseService):
                 hashed_password=hashed_password,
                 role=user_data.role,
             )
-            updated_user = await self.db.users.edit(
-                updated_user_data_password, id=user_id, exclude_unset=True, exclude_none=True
-            )
+            await self.db.users.edit(updated_user_data_password, id=user_id, exclude_unset=True, exclude_none=True)
             await self.db.commit()
-            return updated_user
+
         except IntegrityError as ex:
             raise UserAlreadyExistsException from ex
 
@@ -166,10 +168,7 @@ class AuthService(BaseService):
 
     async def delete_user(self, user_id: int):
         try:
-            query_verify_admin = await self.db.users.check_verify_admin_user(user_id=user_id)
-            if query_verify_admin.role != UserRole.admin:
-                raise UserNotEnoughRightsException
-            await self.db.users.delete(user_id=user_id)
+            await self.db.users.delete(id=user_id)
             await self.db.commit()
 
         except IntegrityError as ex:

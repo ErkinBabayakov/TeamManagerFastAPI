@@ -74,6 +74,7 @@ class MeetingsRepository(BaseRepository):
         except NoResultFound:
             raise MeetingNotFoundException
 
+
     async def get_meetings(self, current_user_id: int, from_date: datetime, to_date: datetime):
         try:
             query = select(self.model).join(MeetingParticipantOrm).filter(

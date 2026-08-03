@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, Request, Body
+from fastapi import APIRouter, Response, Request
 from jwt.exceptions import ExpiredSignatureError
 from app.dependencies import DBDep, ManagerAdminDep
 from app.exceptions import EmailNotRegisteredException, EmailNotRegisteredHTTPException, IncorrectPasswordException, \
@@ -6,11 +6,11 @@ from app.exceptions import EmailNotRegisteredException, EmailNotRegisteredHTTPEx
     UserNotEnoughRightsException, UserNotEnoughRightsHTTPException, TokenExpiredException, \
     UserNotManagerOrAdminException, UserNotManagerOrAdminHTTPException, TeamOrUserNotFoundException, \
     TeamOrUserNotFoundHTTPException, InvalidInviteCodeException, InvalidInviteCodeHTTPException, \
-    UserAlreadyExistsException, UserInviteAlreadyExistsHTTPException, UserInviteAlreadyExistsException, \
+    UserInviteAlreadyExistsHTTPException, UserInviteAlreadyExistsException, \
     TeamAlreadyExistsException, TeamAlreadyExistsHTTPException, TeamNotFoundHTTPException, TeamNotFoundException, \
     TeamEmptyException, TeamEmptyHTTPException, TeamNotExistException, TeamNotExistHTTPException, \
     MemberRoleUpdateException, MemberRoleUpdateHTTPException
-from app.schemas.teammembers import JoinTeam, TeamMemberPATCH, TeamMemberPATCHRole
+from app.schemas.teammembers import JoinTeam, TeamMemberPATCHRole
 from app.schemas.teams import TeamRequestAdd
 from app.schemas.users import UserEnter
 from app.services.auth import AuthService

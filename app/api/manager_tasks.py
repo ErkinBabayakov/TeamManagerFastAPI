@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Request, Response
 from app.dependencies import DBDep, ManagerAdminDep
-from app.exceptions import UserNotEnoughRightsHTTPException, TaskCreateException, TaskCreateHTTPException, \
+from app.exceptions import (UserNotEnoughRightsHTTPException, TaskCreateException, TaskCreateHTTPException, \
     TeamNotFoundException, TeamNotFoundHTTPException, \
     TaskOrTeamNotFoundException, TaskOrTeamNotFoundHTTPException, TeamTaskEmptyException, TeamTaskEmptyHTTPException, \
     TokenExpiredException, TokenExpiredHTTPException, EmailNotRegisteredException, EmailNotRegisteredHTTPException, \
     IncorrectPasswordException, IncorrectPasswordHTTPException, UserNotManagerOrAdminException, \
-    UserNotManagerOrAdminHTTPException, TeamOrUserNotFoundException, TeamOrUserNotFoundHTTPException, \
-    TaskNotFoundException, TaskNotFoundHTTPException, TaskStatusException, TaskStatusHTTPException, EvalCreateException, \
-    EvalCreateHTTPException
+    UserNotManagerOrAdminHTTPException, TaskNotFoundException, TaskNotFoundHTTPException, TaskStatusException, \
+    TaskStatusHTTPException, EvalCreateException, \
+    EvalCreateHTTPException)
 from app.schemas.evaluations import EvaluationRequestAdd
 from app.schemas.tasks import TaskRequestAdd, TaskPATCH
 from app.schemas.users import UserEnter

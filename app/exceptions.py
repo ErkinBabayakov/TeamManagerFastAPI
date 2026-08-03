@@ -12,6 +12,9 @@ class DataBaseException(TeamManagerException):
 class UserNotEnoughRightsException(TeamManagerException):
     detail = "У вас недостаточно прав для выполнения этой операции"
 
+class UserNotAdminException(TeamManagerException):
+    detail = "Для выполнения операции необходима роль 'admin'"
+
 class UserNotManagerOrAdminException(TeamManagerException):
     detail = "Для выполнения операции необходима роль 'manager' или 'admin'"
 
@@ -202,4 +205,9 @@ class MeetingNotFoundHTTPException(TeamManagerHTTPException):
     detail = "Встреча не найдена"
 
 class DataBaseHTTPException(TeamManagerHTTPException):
+    status_code = 400
     detail = "Ошибка с базой данных. Не удалось выполнить операцию"
+
+class UserNotAdminHTTPException(TeamManagerHTTPException):
+    status_code = 403
+    detail = "Для выполнения операции необходима роль 'admin'"

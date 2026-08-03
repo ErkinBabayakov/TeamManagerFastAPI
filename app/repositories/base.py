@@ -13,6 +13,8 @@ from app.repositories.mappers.base import DataMapper
 
 
 class BaseRepository:
+    """ Основной репозиторий, реализующий базовые методы для взаимодействия с БД"""
+
     model: type[Base]
     mapper: type[DataMapper]
     session: AsyncSession
@@ -59,6 +61,8 @@ class BaseRepository:
             else:
                 logging.exception("Неизвестная ошибка")
                 raise ex
+        except UniqueViolationError as ex:
+            raise
 
     async def edit(self, data: BaseModel, exclude_unset: bool = False, exclude_none: bool = False, **filter_by) -> None:
         edit_data_stmt = (update(self.model)

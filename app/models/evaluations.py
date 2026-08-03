@@ -9,7 +9,7 @@ class EvaluationOrm(Base):
     score: Mapped[int] = mapped_column(nullable=False)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
 
-    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id"), unique=True, nullable=False)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), unique=True, nullable=False)
     evaluator_id: Mapped[int] = mapped_column(ForeignKey("users.id"),  nullable=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
 

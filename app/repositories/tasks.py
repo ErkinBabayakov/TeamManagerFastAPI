@@ -1,5 +1,4 @@
 import logging
-
 from asyncpg import UniqueViolationError
 from datetime import datetime
 from pydantic import BaseModel
@@ -11,7 +10,6 @@ from app.models import TaskOrm
 from app.models.tasks import TaskStatus
 from app.repositories.base import BaseRepository
 from app.repositories.mappers.mappers import TaskDataMapper
-
 
 
 class TaskRepository(BaseRepository):
@@ -43,6 +41,7 @@ class TaskRepository(BaseRepository):
         except NoResultFound as ex:
             raise TaskNotFoundException from ex
 
+
     async def check_task_status(self, task_id: int) -> bool:
         try:
             query = select(self.model).where(self.model.id == task_id, self.model.status == TaskStatus.done)
@@ -54,6 +53,7 @@ class TaskRepository(BaseRepository):
         except NoResultFound as ex:
             raise TaskStatusException from ex
 
+
     async def get_title_task(self, assignee_id: int):
         try:
             query = select(self.model.title).filter_by(assignee_id=assignee_id)
@@ -61,6 +61,7 @@ class TaskRepository(BaseRepository):
             return result.scalars().all()
         except NoResultFound as ex:
             raise TaskStatusException from ex
+
 
     async def get_tasks(self, team_ids: list, from_date: datetime, to_date: datetime):
         try:

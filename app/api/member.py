@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Response, Request
 from jwt.exceptions import ExpiredSignatureError
 from app.dependencies import DBDep
-from app.exceptions import UserNotFoundException, UserNotFoundHTTPException, UserNotEnoughRightsException, \
+from app.exceptions import (UserNotFoundException, UserNotFoundHTTPException, UserNotEnoughRightsException, \
     UserNotEnoughRightsHTTPException, TokenExpiredHTTPException, EmailNotRegisteredException, \
-    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException, TaskNotFoundException, \
-    TaskNotFoundHTTPException, TasksNotExistsHTTPException, TasksNotExistsException, TokenExpiredException
+    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException, TasksNotExistsHTTPException, \
+    TasksNotExistsException, TokenExpiredException)
 from app.schemas.users import  UserEnter
 from app.services.auth import AuthService
 from app.services.tasks import TaskService

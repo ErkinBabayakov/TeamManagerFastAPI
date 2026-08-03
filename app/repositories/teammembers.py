@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
@@ -6,7 +5,7 @@ from app.exceptions import TeamOrUserNotFoundException, MemberRoleUpdateExceptio
 from app.models import TeamMemberOrm
 from app.repositories.base import BaseRepository
 from app.repositories.mappers.mappers import TeamMemberDataMapper
-from app.schemas.teammembers import TeamMember
+
 
 
 class TeamMemberRepository(BaseRepository):
@@ -36,12 +35,14 @@ class TeamMemberRepository(BaseRepository):
         except NoResultFound as ex:
             raise TeamOrUserNotFoundException from ex
 
+
     async def update_member_role(self, team_id: int, user_id: int, role: str):
         try:
             update_data_stmt = update(self.model).where(self.model.team_id == team_id, self.model.user_id == user_id).values(role=role)
             await self.session.execute(update_data_stmt)
         except IntegrityError:
             raise MemberRoleUpdateException
+
 
     async def get_team_ids(self, current_user_id: int):
         try:

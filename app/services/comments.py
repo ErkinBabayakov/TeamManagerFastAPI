@@ -3,6 +3,7 @@ from app.schemas.comments import CommentRequestAdd, CommentAdd
 from app.services.base import BaseService
 
 class CommentService(BaseService):
+    """Сервисный слой для комментариев"""
 
     async def add_comment(self, task_id: int, author_id: int, comment_data: CommentRequestAdd):
         new_comment_data = CommentAdd(

@@ -1,15 +1,11 @@
 import secrets
-from datetime import datetime
-
-from app.exceptions import ObjectAlreadyExistsException, UserAlreadyExistsException, TeamAlreadyExistsException, \
-    TeamNotFoundException, InvalidInviteCodeException, ObjectNotFoundException, TeamNotExistException
-from app.repositories.teammembers import TeamMemberRepository
-from app.schemas.teammembers import JoinTeam
-from app.schemas.teams import Team, TeamRequestAdd, TeamAdd
+from app.exceptions import ObjectAlreadyExistsException, TeamAlreadyExistsException, ObjectNotFoundException, TeamNotExistException
+from app.schemas.teams import TeamRequestAdd, TeamAdd
 from app.services.base import BaseService
 
 
 class TeamService(BaseService):
+    """Сервисный слой для команды"""
 
     async def create_team(self, team_data: TeamRequestAdd, creator_id: int):
         invite_code = secrets.token_urlsafe(12)

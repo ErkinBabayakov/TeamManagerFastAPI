@@ -8,6 +8,8 @@ SchemaType = TypeVar("SchemaType", bound=BaseModel)
 
 
 class DataMapper:
+    """ Базовый класс DataMapper для преобразования данных из ORM-модели в Pydantic-схему и обратно"""
+
     db_model: Type[Base]
     schema: Type[SchemaType]
 

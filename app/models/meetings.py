@@ -21,7 +21,7 @@ class MeetingOrm(Base):
 class MeetingParticipantOrm(Base):
     __tablename__ = "meeting_participants"
     meeting_id: Mapped[int] = mapped_column(ForeignKey("meetings.id", ondelete="CASCADE"), primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     joined_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
     meeting = relationship("MeetingOrm", back_populates="participants")

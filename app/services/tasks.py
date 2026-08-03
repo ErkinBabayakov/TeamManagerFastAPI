@@ -8,6 +8,7 @@ from app.services.base import BaseService
 
 
 class TaskService(BaseService):
+    """Сервисный слой для задач"""
 
     async def create_task(self, team_id: int, creator_id: int , task_data: TaskRequestAdd):
         new_task_data = TaskAdd(

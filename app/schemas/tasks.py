@@ -13,7 +13,7 @@ class Task(BaseModel):
     title: str
     description: str
     status: Optional[TaskStatus]
-    due_date: datetime
+    due_date: datetime | None = None
 
     team_id: int
     creator_id: int
@@ -22,11 +22,26 @@ class Task(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator("due_date", mode='before')
+    @classmethod
+    def ensure_naive_datetime(cls, value: datetime) -> datetime:
+        if isinstance(value, datetime) and value.tzinfo is not None:
+            return value.astimezone(timezone.utc).replace(tzinfo=None)
+        return value
+
+
 class TaskRequestAdd(BaseModel):
     title: str
     description: str | None = None
     due_date: datetime | None = None
     assignee_id: int | None = None
+
+    @field_validator("due_date", mode='before')
+    @classmethod
+    def ensure_naive_datetime(cls, value: datetime) -> datetime:
+        if isinstance(value, datetime) and value.tzinfo is not None:
+            return value.astimezone(timezone.utc).replace(tzinfo=None)
+        return value
 
 
 class TaskAdd(BaseModel):

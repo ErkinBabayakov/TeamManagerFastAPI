@@ -7,6 +7,7 @@ from app.schemas.meetings import MeetingRequestAdd, MeetingAdd, MeetingValidateT
 from app.services.base import BaseService
 
 class MeetingsService(BaseService):
+    """Сервисный слой для встреч"""
 
     async def create_meeting(self, team_id: int, organizer_id: int, meeting_data: MeetingRequestAdd):
         try:
@@ -51,7 +52,7 @@ class MeetingsService(BaseService):
             await self.db.commit()
 
             meeting_out_data = await self.db.meetings.get_meeting_data(all_participants)
-            return meeting_out_data
+            return f"Встреча создана, идентификатор встречи: {meeting_data_id.dict().get('id')}"
 
         except UsersInMeetingsNotFoundException:
             raise UsersInMeetingsNotFoundException

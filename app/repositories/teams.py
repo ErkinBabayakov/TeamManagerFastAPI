@@ -12,7 +12,6 @@ class TeamRepository(BaseRepository):
     model = TeamOrm
     mapper = TeamDataMapper
 
-
     async def get_team(self, team_id: int):
         try:
             query = select(self.model).filter_by(id=team_id)

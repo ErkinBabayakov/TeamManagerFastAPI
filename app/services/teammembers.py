@@ -1,13 +1,15 @@
 from datetime import datetime, timezone
 from app.exceptions import TeamNotFoundException, InvalidInviteCodeException, UserAlreadyExistsException, \
     ObjectAlreadyExistsException, UserInviteAlreadyExistsException, ObjectNotFoundException, TeamEmptyException, \
-    TeamManagerException, UserNotFoundException, TeamOrUserNotFoundException, MemberRoleUpdateException
+    TeamOrUserNotFoundException, MemberRoleUpdateException
 from app.schemas.calendar import CalendarEvent, CalendarEventValidateDate
-from app.schemas.teammembers import JoinTeam, TeamMemberAdd, TeamMemberPATCH, TeamMemberPATCHRole
+from app.schemas.teammembers import JoinTeam, TeamMemberAdd, TeamMemberPATCHRole
 from app.services.base import BaseService
 
 
 class TeamMembersService(BaseService):
+    """Сервисный слой для участников команды"""
+
     async def join_team(self, team_id: int, user_id: int, join_data: JoinTeam):
         team = await self.db.teams.get_team(team_id)
         if not team:
@@ -75,11 +77,9 @@ class TeamMembersService(BaseService):
                 end=to_date,
             )
             # Задачи: due_date в диапазане
-            # tasks = await self.db.tasks.get_tasks(team_ids, from_date, to_date)
             tasks = await self.db.tasks.get_tasks(team_ids, validate_data.start, validate_data.end)
 
             # Встречи, где пользователь участник
-            # meetings = await self.db.meetings.get_meetings(current_user_id, from_date, to_date)
             meetings = await self.db.meetings.get_meetings(current_user_id, validate_data.start, validate_data.end)
             events = []
             for task in tasks:
@@ -98,7 +98,6 @@ class TeamMembersService(BaseService):
             raise ValueError from ex
 
     def to_naive_utc(self, dt: datetime) -> datetime:
-        """Преобразует aware datetime в naive UTC (отбрасывает tzinfo)."""
         if dt.tzinfo is not None:
             return dt.astimezone(timezone.utc).replace(tzinfo=None)
         return dt

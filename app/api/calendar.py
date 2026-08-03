@@ -42,7 +42,7 @@ async def get_me(db: DBDep, request: Request):
     except ExpiredSignatureError:
         raise TokenExpiredHTTPException
 
-@router.get("/", response_model=list[CalendarEvent], summary="Посмотреть события в календаре")
+@router.get("/", response_model=list[CalendarEvent], summary="Посмотреть события в календаре, даты ставятся с часовым поясом (tz)")
 async def get_calendar(db: DBDep, request: Request, from_date: datetime = Query(...), to_date: datetime = Query(...)):
     current_user_token = request.cookies.get("access_token")
     decode_token = AuthService(db).decode_token(current_user_token)
